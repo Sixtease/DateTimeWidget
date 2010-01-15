@@ -420,7 +420,10 @@ if (!window.carp) carp = function() {
                     d.setSeconds(0);
                     d.setMilliseconds(0);
                     dti.set_date(d, {/*preserve*/hour:true,minute:true});
-                    if ($input.is(date_input_selector)) $(this).closest('.datetimepicker').hide();
+                    if ($input.is(date_input_selector)) {
+                        $(this).closest('.datetimepicker').hide();
+                        $input.focus();
+                    }
                 },
                 onClose: function() {
                     $(this).closest('.datetimepicker').hide();
@@ -488,7 +491,7 @@ if (!window.carp) carp = function() {
     $( document ).one ('ready' , media_dependent_datetime_init);
     
     // Close the datetimepicker when something else is clicked
-    $('body').live('click', function(evt) {
+    $( document ).click( function(evt) {
         // ignore clicking on the datepicker triggering icon
         if ($(evt.target).closest('.dtpicker-trigger').length) return true;
         // ignore clicking on the datepicker itself
