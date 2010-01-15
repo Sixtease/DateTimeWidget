@@ -98,48 +98,40 @@ if (!window.carp) carp = function() {
     }
     window.GenericDTInput = GenericDTInput;
     
-    GenericDTInput.prototype.set_selection = function(el, start, len) {
-        el.selectionStart = start;
-        el.selectionEnd = start + len;
-        return;
-        if (el.createTextRange){
-            // quick fix to make it work on Opera 9.5
-            if ($.browser.opera && $.browser.version >= 9.5 && len == 0) {
-                return false;
-            }
-            range = el.createTextRange();
-            range.collapse(true);
-            range.moveStart('character', start);
-            range.moveEnd('character', len);
-            range.select();
-        } else if (el.setSelectionRange ){
-            el.setSelectionRange(start, start + len);
-        }
-        el.focus();
-    }
-    GenericDTInput.prototype.get_caret = function(el) {
-        var $el = $(el);
-        $el.focus();
-
+    GenericDTInput.prototype.set_caret = function(el, pos) {
         if (document.selection) {
-            selection = document.selection.createRange().text;
-            if ($.browser.msie) { // ie
-                var range = document.selection.createRange(), rangeCopy = range.duplicate();
-                rangeCopy.moveToElementText(el);
-                caretPosition = -1;
-                while(rangeCopy.inRange(range)) { // fix most of the ie bugs with linefeeds...
-                    rangeCopy.moveStart('character');
-                    caretPosition ++;
-                }
-            } else { // opera
-                caretPosition = el.selectionStart;
-            }
-        } else { // gecko
-            caretPosition = el.selectionStart;
-            selection = $el.val().substring(caretPosition, el.selectionEnd);
+            $(el).focus();
+            var range = document.selection.createRange();
+            range.moveStart('character', -$(el).val().length);
+            range.moveEnd('character', -$(el).val().length);
+            range.moveStart('character', pos);
+            range.moveEnd('character', 0);
+            range.select();
         }
-        return caretPosition
-    }
+        else if (el.setSelectionRange) {
+            el.setSelectionRange(pos, pos);
+        }
+    };
+    GenericDTInput.prototype.get_caret = function(el) {
+        var result = {start:0, end:0, caret:0};
+        $(el).focus();
+        
+        if (document.selection) {
+            var range = document.selection.createRange();
+            var r2 = range.duplicate();         
+            result.start = 0 - r2.moveStart('character', -$(el).val().length);
+            result.end = result.start + range.text.length;  
+            result.caret = result.end;
+        } else {
+            result.start = el.selectionStart;
+            result.end = el.selectionEnd;
+            result.caret = result.end;
+        }
+        if (result.start < 0) {
+             result = {start:0, end:0, caret:0};
+        }   
+        return result;
+    };
 
     function DateTimeInput(input) {
         var self = new GenericDTInput(input);
@@ -229,7 +221,7 @@ if (!window.carp) carp = function() {
             
             this.set_date(d);
             
-            this.set_selection(input, pos, 0);
+            this.set_caret(input, pos);
         };
         $(input).closest('form').submit( function(evt) {
             var re = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)( \w+)?)?$/;
@@ -314,7 +306,7 @@ if (!window.carp) carp = function() {
             
             this.set_date(d);
             
-            this.set_selection(input, pos, 0);
+            this.set_caret(input, pos);
         };
         $(input).closest('form').submit( function(evt) {
             self.onFormSubmit(
@@ -383,7 +375,7 @@ if (!window.carp) carp = function() {
                     if (evt.keyCode == 38) delta =  1;
                     if (evt.keyCode == 40) delta = -1;
                     if (!delta) return true;
-                    var pos = $dti.get_caret(this);
+                    var pos = $dti.get_caret(this).caret;
                     $dti.scroll(pos, delta);
                     evt.preventDefault();
                 });
