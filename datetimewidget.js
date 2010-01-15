@@ -483,7 +483,7 @@ if (!window.carp) carp = function() {
     $( document ).one ('ready' , media_dependent_datetime_init);
     
     // Close the datetimepicker when something else is clicked
-    $( document ).click( function(evt) {
+    $('body').live('click', function(evt) {
         // ignore clicking on the datepicker triggering icon
         if ($(evt.target).closest('.dtpicker-trigger').length) return true;
         // ignore clicking on the datepicker itself
