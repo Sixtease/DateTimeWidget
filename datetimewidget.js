@@ -1,6 +1,7 @@
 if (!window.gettext) gettext = function(s) { return s };
 if (!window.carp) carp = function() {
     try {
+        var $ = jQuery;
         $('#debug').append($('<p>').text($.makeArray(arguments).join(' ')));
     } catch(e) { }
     try {
@@ -24,6 +25,34 @@ if (!window.carp) carp = function() {
         + '<a class="icn history js-timepick js-time-1200">'+gettext('Noon')+'</a>\n'
     ;
     /* END OF SETTINGS */
+    
+    /* Set up CSS */
+    function mkstyle(style) {
+        var $head = $('head');
+        var style_str;
+        if (typeof style == 'string') style_str = style;
+        else if (typeof style == 'object') {
+            style_str = '';
+            for (var selector in style) {
+                var decl = style[selector];
+                var decl_str = $('<div>').css(decl).attr('style');
+                style_str += selector + ' { ' + decl_str + ' }\n';
+            }
+        }
+        $('<style type="text/css">').html(style_str).appendTo($head);
+    }
+    mkstyle({
+        ".datetimepicker": {
+            position: 'absolute',
+            display: 'none'
+        },
+        ".timepicker a": {
+            cursor: 'pointer',
+            textShadow: '0 0 8px white'
+        },
+        ".dtpicker-trigger img": { verticalAlign: 'bottom' }
+    });
+    /* End of CSS setup */
     
     var date_input_selector     = '.'+date_input_class;
     var datetime_input_selector = '.'+datetime_input_class;
