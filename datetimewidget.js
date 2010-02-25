@@ -223,11 +223,17 @@ if (!window.carp) carp = function() {
             
             this.set_caret(input, pos);
         };
-        $(input).closest('form').submit( function(evt) {
-            var re = /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)( \w+)?)?$/;
-            var input_selector = datetime_input_selector;
-            self.onFormSubmit(evt, re, input_selector);
-        });
+        var $f = $(input).closest('form');
+        if (!$f.data('submit_event_bound')) {
+            $f.data('submit_event_bound', true);
+            $f.submit( function(evt) {
+                self.onFormSubmit(
+                    evt,
+                    /^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?)( \w+)?)?$/,
+                    datetime_input_selector
+                );
+            });
+        }
         return self;
     }
     window.DateTimeInput = DateTimeInput;
@@ -308,13 +314,17 @@ if (!window.carp) carp = function() {
             
             this.set_caret(input, pos);
         };
-        $(input).closest('form').submit( function(evt) {
-            self.onFormSubmit(
-                evt,
-                /^(\d{4}-\d{2}-\d{2}( \w+)?)?$/,
-                date_input_selector
-            );
-        });
+        var $f = $(input).closest('form');
+        if (!$f.data('submit_event_bound')) {
+            $f.data('submit_event_bound', true);
+            $f.submit( function(evt) {
+                self.onFormSubmit(
+                    evt,
+                    /^(\d{4}-\d{2}-\d{2}( \w+)?)?$/,
+                    date_input_selector
+                );
+            });
+        }
         return self;
     }
     window.DateInput = DateInput;
